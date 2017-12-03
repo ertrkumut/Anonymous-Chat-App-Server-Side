@@ -1,0 +1,13 @@
+{
+    "tcpPort": ":8081",
+    "udpPort": ":8081",
+    "maximumUserCount": 1000,
+    "maximumRoomCount": 50,
+    "defaultRoomCapacity": 10,
+    "defaultRoomName": "Default",
+    "defaultRoomTag": "Default",
+    "minimumLenghtOfroomName":1,
+    "maximumLenghtOfroomName":10,
+    "minimumLenghtOfuserName":1,
+    "maximumLenghtOfuserName":20
+}
