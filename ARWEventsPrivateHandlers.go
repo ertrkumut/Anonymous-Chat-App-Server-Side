@@ -62,3 +62,36 @@ func P_Login(arwServer *ARWServer, conn net.Conn, request *Request) {
 
 	arwServer.SendRequest(responseRequest, conn)
 }
+
+func P_ExtensionResponse(arwServer *ARWServer, conn net.Conn, request *Request) {
+	cmd, _ := request.specialParams.GetString("cmd")
+	isRoomReq, _ := request.specialParams.GetString("isRoom")
+
+	if isRoomReq == "false" {
+		for _, extension := range arwServer.extensionHandlers {
+			if cmd == extension.cmd {
+				user, err := arwServer.userManager.FindUserWithSession(conn)
+				if err == nil {
+					extension.handler(arwServer, user, request.arwObject)
+				}
+			}
+		}
+	} else {
+		roomId, err := request.specialParams.GetInt("roomId")
+		if err != nil {
+			return
+		}
+
+		room := arwServer.roomManager.FindRoomWithRoomId(roomId)
+		for _, extension := range room.extensionRequests {
+			if extension.cmd == cmd {
+				user, userErr := arwServer.userManager.FindUserWithSession(conn)
+				if userErr != nil {
+					return
+				}
+
+				extension.handler(arwServer, user, request.arwObject)
+			}
+		}
+	}
+}

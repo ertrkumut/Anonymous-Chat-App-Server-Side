@@ -2,20 +2,22 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net"
 )
 
 type ARWServer struct {
-	serverSettings ServerSettings
-	events         ARWEvents
-	listener       net.Listener
-	sessionManager SessionManager
-	requestManager RequestManager
-	userManager    UserManager
-	roomManager    RoomManager
-	logManager     LogManager
+	serverSettings    ServerSettings
+	events            ARWEvents
+	listener          net.Listener
+	sessionManager    SessionManager
+	requestManager    RequestManager
+	userManager       UserManager
+	roomManager       RoomManager
+	logManager        LogManager
+	extensionHandlers []*ExtensionRequest
 }
 
 func (arwServer *ARWServer) Initialize() {
@@ -76,6 +78,35 @@ func (arwServer *ARWServer) ParseRequestBytes(bytes []byte, conn net.Conn) {
 
 func (arwServer *ARWServer) AddEventHandler(event *ARWEvent, eventHandler EventHandler) {
 	event.Handler = eventHandler
+}
+
+func (arwServer *ARWServer) AddExtensionHandler(cmd string, handler ExtensionHandler) error {
+	for ii := 0; ii < len(arwServer.extensionHandlers); ii++ {
+		currentExtension := arwServer.extensionHandlers[ii]
+		if currentExtension.cmd == cmd {
+			return errors.New("Extension Command already exist")
+		}
+	}
+
+	var newExtension *ExtensionRequest
+	newExtension = new(ExtensionRequest)
+
+	newExtension.cmd = cmd
+	newExtension.handler = handler
+	arwServer.extensionHandlers = append(arwServer.extensionHandlers, newExtension)
+	return nil
+}
+
+func (arwServer *ARWServer) SendExtensionRequest(cmd string, user *ARWUser, arwObj ARWObject) {
+	var request *Request
+	request = new(Request)
+
+	request.eventname = Extension_Response
+	request.arwObject = arwObj
+	request.specialParams.PutString("cmd", cmd)
+	request.specialParams.PutString("isRoomReq", "false")
+
+	arwServer.SendRequest(request, user.session.conn)
 }
 
 func (arwServer *ARWServer) SendRequest(request *Request, conn net.Conn) {

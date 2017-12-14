@@ -9,16 +9,18 @@ import (
 type RoomInitializeMethod func(arwServer *ARWServer, room *ARWRoom)
 
 type ARWRoom struct {
-	tag              string
-	name             string
-	id               int
-	cappacity        int
-	userList         []*ARWUser
-	InitializeMethod RoomInitializeMethod
+	tag               string
+	name              string
+	id                int
+	cappacity         int
+	userList          []*ARWUser
+	extensionRequests []*ExtensionRequest
+	InitializeMethod  RoomInitializeMethod
 }
 
 func (room *ARWRoom) Init(arwServer *ARWServer) {
 	room.userList = make([]*ARWUser, 0, room.cappacity)
+	room.extensionRequests = make([]*ExtensionRequest, 0, arwServer.serverSettings.maxRoomExtensionRequests)
 
 	if room.InitializeMethod != nil {
 		room.InitializeMethod(arwServer, room)
@@ -71,6 +73,36 @@ func (room *ARWRoom) RemoveUserInRoom(user *ARWUser, arwServer *ARWServer) {
 			}
 		}
 	}
+}
+
+func (room *ARWRoom) AddExtensionHandler(cmd string, handler ExtensionHandler) error {
+	for _, extension := range room.extensionRequests {
+		if extension.cmd == cmd {
+			return errors.New("Extension Already Exist")
+		}
+	}
+
+	var newExtension *ExtensionRequest
+	newExtension = new(ExtensionRequest)
+
+	newExtension.cmd = cmd
+	newExtension.handler = handler
+
+	room.extensionRequests = append(room.extensionRequests, newExtension)
+	return nil
+}
+
+func (room *ARWRoom) SendExtensionRequest(arwServer *ARWServer, cmd string, arwObj ARWObject, user *ARWUser) {
+	var req *Request
+	req = new(Request)
+
+	req.eventname = Extension_Response
+	req.arwObject = arwObj
+	req.specialParams.PutString("cmd", cmd)
+	req.specialParams.PutString("isRoom", "true")
+	req.specialParams.PutInt("roomId", room.id)
+
+	arwServer.SendRequest(req, user.session.conn)
 }
 
 func (room *ARWRoom) CompressRoomSettings(user *ARWUser) string {

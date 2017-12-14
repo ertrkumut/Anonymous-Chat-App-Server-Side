@@ -55,6 +55,7 @@ func (events *ARWEvents) Initialize() {
 	events.User_Exit_Room.eventName = User_Exit_Room
 
 	events.Extension_Request.eventName = Extension_Response
+	events.Extension_Request.Private_Handler = P_ExtensionResponse
 
 	events.allEvents = make([]ARWEvent, 0, 15)
 	events.allEvents = append(events.allEvents, events.Connection)

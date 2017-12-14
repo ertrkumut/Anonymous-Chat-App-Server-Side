@@ -8,17 +8,19 @@ import (
 )
 
 type ServerSettings struct {
-	tcpPort                 string
-	udpPort                 string
-	defaultRoomName         string
-	defaultRoomTag          string
-	maximumUserCount        int64
-	maximumRoomCount        int64
-	defaultRoomCapacity     int64
-	minimumLenghtOfuserName int64
-	maximumLenghtOfuserName int64
-	minimumLenghtOfroomName int64
-	maximumLenghtOfroomName int64
+	tcpPort                    string
+	udpPort                    string
+	defaultRoomName            string
+	defaultRoomTag             string
+	maximumUserCount           int64
+	maximumRoomCount           int64
+	defaultRoomCapacity        int64
+	minimumLenghtOfuserName    int64
+	maximumLenghtOfuserName    int64
+	minimumLenghtOfroomName    int64
+	maximumLenghtOfroomName    int64
+	maxRoomExtensionRequests   int64
+	maxServerExtensionRequests int64
 }
 
 func (setttings *ServerSettings) InitializeServerSettings(path string) {
@@ -86,15 +88,17 @@ func (setttings *ServerSettings) InitializeServerSettings(path string) {
 	}
 	setttings.maximumLenghtOfuserName = maximumLenghtOfuserName
 
-	fmt.Println("TcpPort = ", setttings.tcpPort)
-	fmt.Println("UdpPort = ", setttings.udpPort)
-	fmt.Println("Default Room Name = ", setttings.defaultRoomName)
-	fmt.Println("Default Room Tag = ", setttings.defaultRoomTag)
-	fmt.Println("Minimum Lenght of Room Name = ", setttings.minimumLenghtOfroomName)
-	fmt.Println("Maximum Lenght of Room Name = ", setttings.maximumLenghtOfroomName)
-	fmt.Println("Minimum Lenght of User Name = ", setttings.minimumLenghtOfuserName)
-	fmt.Println("Maximum Lenght of User Name = ", setttings.maximumLenghtOfuserName)
-	fmt.Println("Maximum User Count = ", setttings.maximumUserCount)
-	fmt.Println("Maximum Room Count = ", setttings.maximumRoomCount)
-	fmt.Println("Default Room Capacity = ", setttings.defaultRoomCapacity)
+	maxRoomExtensionRequestsString := fmt.Sprintf("%v", allJsonData["maxRoomExtensionRequests"])
+	maxRoomExtensionRequests, parseErr := strconv.ParseInt(maxRoomExtensionRequestsString, 10, 64)
+	if parseErr != nil {
+		panic(parseErr)
+	}
+	setttings.maxRoomExtensionRequests = maxRoomExtensionRequests
+
+	maxServerExtensionRequestsString := fmt.Sprintf("%v", allJsonData["maxRoomExtensionRequests"])
+	maxServerExtensionRequests, parseErr := strconv.ParseInt(maxServerExtensionRequestsString, 10, 64)
+	if parseErr != nil {
+		panic(parseErr)
+	}
+	setttings.maxServerExtensionRequests = maxServerExtensionRequests
 }
