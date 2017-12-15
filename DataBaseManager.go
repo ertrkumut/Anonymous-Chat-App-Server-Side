@@ -44,7 +44,13 @@ func (db *DataBaseManager) RegisterNewUser(userId string, nickname string, langu
 	userData += "\"created_date\":\"" + time.Now().Format(time.Stamp) + "\","
 	userData += "\"player_talks\":[]}"
 
-	// err := ioutil.WriteFile(db.dbPath+userId, []byte(userData), 0644)
+	err := ioutil.WriteFile(db.dbPath+userId, []byte(userData), 0644)
 
-	return userData, nil
+	return userData, err
+}
+
+func (db *DataBaseManager) GetUserData(userId string) (string, error) {
+	byteArray, err := ioutil.ReadFile(db.dbPath + userId)
+
+	return string(byteArray), err
 }
