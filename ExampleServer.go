@@ -41,5 +41,17 @@ func GetUserDataHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 		x, _ := obj.GetString("player_data")
 		fmt.Println(x)
 		server.SendExtensionRequest("GetUserData", user, obj)
+	} else {
+		userData, err := db.GetUserData(player_id)
+
+		var obj ARWObject
+		obj.PutString("player_data", userData)
+		if err != nil {
+			obj.PutString("error", err.Error())
+		} else {
+			obj.PutString("error", "")
+		}
+
+		server.SendExtensionRequest("GetUserData", user, obj)
 	}
 }
