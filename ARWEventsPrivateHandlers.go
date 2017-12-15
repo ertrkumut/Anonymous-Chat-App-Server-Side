@@ -67,7 +67,7 @@ func P_ExtensionResponse(arwServer *ARWServer, conn net.Conn, request *Request) 
 	cmd, _ := request.specialParams.GetString("cmd")
 	isRoomReq, _ := request.specialParams.GetString("isRoom")
 
-	if isRoomReq == "false" {
+	if isRoomReq == "False" {
 		for _, extension := range arwServer.extensionHandlers {
 			if cmd == extension.cmd {
 				user, err := arwServer.userManager.FindUserWithSession(conn)

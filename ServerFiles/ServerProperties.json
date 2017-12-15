@@ -4,6 +4,8 @@
     "maximumUserCount": 1000,
     "maximumRoomCount": 50,
     "defaultRoomCapacity": 10,
+    "maxRoomExtensionRequests": 10,
+    "maxServerExtensionRequests": 10,
     "defaultRoomName": "Default",
     "defaultRoomTag": "Default",
     "minimumLenghtOfroomName":1,

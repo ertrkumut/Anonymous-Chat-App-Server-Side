@@ -94,6 +94,7 @@ func (arwServer *ARWServer) AddExtensionHandler(cmd string, handler ExtensionHan
 	newExtension.cmd = cmd
 	newExtension.handler = handler
 	arwServer.extensionHandlers = append(arwServer.extensionHandlers, newExtension)
+
 	return nil
 }
 
