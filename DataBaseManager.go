@@ -52,7 +52,7 @@ func (db *DataBaseManager) UserIsExist(userId string) bool {
 	return false
 }
 
-func (db *DataBaseManager) RegisterNewUser(userId string, nickname string, language string) (string, error) {
+func (db *DataBaseManager) RegisterNewUser(userId string, nickname string, language string, arwUser *ARWUser) (string, error) {
 	userData := "{"
 	userData += "\"player_id\":\"" + userId + "\","
 	userData += "\"player_nickname\":\"" + nickname + "\","
@@ -62,6 +62,12 @@ func (db *DataBaseManager) RegisterNewUser(userId string, nickname string, langu
 
 	err := ioutil.WriteFile(db.dbPath+userId, []byte(userData), 0644)
 
+	var user *Player
+	user = new(Player)
+	user.Init([]byte(userData))
+	user.arwUser = arwUser
+
+	db.users = append(db.users, user)
 	return userData, err
 }
 
