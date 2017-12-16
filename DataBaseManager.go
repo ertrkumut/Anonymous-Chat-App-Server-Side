@@ -86,3 +86,14 @@ func (db *DataBaseManager) GetUserData(userId string) (string, *Player, error) {
 
 	return "", nil, err
 }
+
+func (db *DataBaseManager) GetActiveUsers() []*Player {
+
+	activeUsers := make([]*Player, 0)
+	for _, player := range db.users {
+		if player.arwUser != nil {
+			activeUsers = append(activeUsers, player)
+		}
+	}
+	return activeUsers
+}
