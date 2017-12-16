@@ -24,5 +24,4 @@ func (message *Message) Init(messageData map[string]interface{}) {
 
 	talkIdString := fmt.Sprintf("%v", messageData["talk_id"])
 	message.talkId, _ = strconv.ParseInt(talkIdString, 10, 64)
-	fmt.Println(message.id, message.body)
 }
