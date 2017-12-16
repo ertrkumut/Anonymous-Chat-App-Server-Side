@@ -10,6 +10,7 @@ type Player struct {
 	nickname string
 	language string
 	talks    []*Talk
+	arwUser  *ARWUser
 }
 
 func (player *Player) Init(userData []byte) error {
