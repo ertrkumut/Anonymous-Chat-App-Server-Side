@@ -8,6 +8,21 @@ import (
 
 type DataBaseManager struct {
 	dbPath string
+	users  []*Player
+}
+
+func (db *DataBaseManager) InitAllDb() {
+	allUsers := db.GetAllFiles()
+
+	for _, userFile := range allUsers {
+		userData, err := ioutil.ReadFile(db.dbPath + userFile.Name())
+		if err == nil {
+			var user *Player
+			user = new(Player)
+
+			user.Init(userData)
+		}
+	}
 }
 
 func (db *DataBaseManager) GetAllFiles() []os.FileInfo {
