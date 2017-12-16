@@ -25,3 +25,14 @@ func (message *Message) Init(messageData map[string]interface{}) {
 	talkIdString := fmt.Sprintf("%v", messageData["talk_id"])
 	message.talkId, _ = strconv.ParseInt(talkIdString, 10, 64)
 }
+
+func (message *Message) GetMessageData() string {
+	messageData := "{"
+	messageData += "\"message_id\":" + fmt.Sprintf("%v", message.id) + ","
+	messageData += "\"body\":\"" + message.body + "\","
+	messageData += "\"send_data\":\"" + message.sendDate + "\","
+	messageData += "\"sender_id\":\"" + message.senderId + "\","
+	messageData += "\"talk_id\":" + fmt.Sprintf("%v", message.talkId)
+	messageData += "}"
+	return messageData
+}
