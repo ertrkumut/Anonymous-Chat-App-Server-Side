@@ -71,8 +71,18 @@ func (db *DataBaseManager) RegisterNewUser(userId string, nickname string, langu
 	return userData, err
 }
 
-func (db *DataBaseManager) GetUserData(userId string) (string, error) {
+func (db *DataBaseManager) GetUserData(userId string) (string, *Player, error) {
 	byteArray, err := ioutil.ReadFile(db.dbPath + userId)
 
-	return string(byteArray), err
+	if err != nil {
+		return "", nil, err
+	}
+
+	for _, user := range db.users {
+		if user.id == userId {
+			return string(byteArray), user, nil
+		}
+	}
+
+	return "", nil, err
 }
