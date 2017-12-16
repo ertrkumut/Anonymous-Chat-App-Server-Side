@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type Talk struct {
@@ -31,4 +32,30 @@ func (talk *Talk) Init(talkData map[string]interface{}) {
 		msj.Init(msjData)
 		talk.messages = append(talk.messages, msj)
 	}
+}
+
+func (talk *Talk) CreateNewTalk(owner *Player, playerTwo *Player) {
+	talk.id = int64(len(owner.talks))
+	talk.playerOneId = owner.id
+	talk.playerTwoId = playerTwo.id
+	talk.receiverName = playerTwo.nickname
+
+	owner.talks = append(owner.talks, talk)
+}
+
+func (talk *Talk) GetTalkData() string {
+	talkData := "{"
+	talkData += "\"talk_id\":" + fmt.Sprintf("%v", talk.id) + ","
+	talkData += "\"receiver_name\":\"" + talk.receiverName + "\","
+	talkData += "\"receiver_id\":\"" + talk.playerTwoId + "\","
+	talkData += "\"sender_id\":\"" + talk.playerOneId + "\","
+	talkData += "\"talk_messages\":["
+
+	for _, msj := range talk.messages {
+		talkData += msj.GetMessageData() + ","
+	}
+
+	talkData = strings.TrimRight(talkData, ",")
+	talkData += "]}"
+	return talkData
 }
