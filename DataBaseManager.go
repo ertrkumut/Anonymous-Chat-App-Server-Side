@@ -21,6 +21,7 @@ func (db *DataBaseManager) InitAllDb() {
 			user = new(Player)
 
 			user.Init(userData)
+			db.users = append(db.users, user)
 		}
 	}
 }
