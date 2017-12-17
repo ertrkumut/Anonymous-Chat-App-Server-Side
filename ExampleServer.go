@@ -73,19 +73,47 @@ func FindConversationHandler(server *ARWServer, user *ARWUser, arwObj ARWObject)
 		return
 	}
 
+	var findedUser *Player
 	owner := db.FindUserByARWUser(user)
-	findedUser := activeUsers[0]
+	for _, player := range activeUsers {
+		if player.id == owner.id {
+			break
+		}
+		conversationIsExist := '0'
+		for _, talk := range player.talks {
+			if talk.receiverPlayer == owner.id {
+				conversationIsExist = '1'
+			}
+		}
+		if conversationIsExist == '0' {
+			findedUser = player
+		}
+	}
 
-	var arwObject ARWObject
-	arwObject.PutString("player_nickname", findedUser.nickname)
-	arwObject.PutString("player_id", findedUser.id)
+	if findedUser == nil {
+		var aObj ARWObject
+		arwServer.SendExtensionRequest(CannotFindActiveUser, user, aObj)
+		return
+	}
 
-	arwServer.SendExtensionRequest(FindedConversation, user, arwObject)
+	var ownerTalk *Talk
+	ownerTalk = new(Talk)
+	ownerTalk.CreateNewTalk(owner, findedUser)
+	owner.AddTalk(ownerTalk)
+
+	var findedUserTalk *Talk
+	findedUserTalk = new(Talk)
+	findedUserTalk.CreateNewTalk(findedUser, owner)
+	findedUser.AddTalk(findedUserTalk)
+
+	var ownerObj ARWObject
+	ownerObj.PutString("talk_data", ownerTalk.GetTalkData())
+
+	arwServer.SendExtensionRequest(FindedConversation, user, ownerObj)
 
 	if findedUser.arwUser != nil {
 		var obj ARWObject
-		obj.PutString("player_nickname", owner.nickname)
-		obj.PutString("player_id", owner.id)
+		obj.PutString("talk_data", findedUserTalk.GetTalkData())
 
 		arwServer.SendExtensionRequest(FindedConversation, findedUser.arwUser, obj)
 	}
