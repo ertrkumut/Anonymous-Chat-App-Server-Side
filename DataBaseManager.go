@@ -97,3 +97,14 @@ func (db *DataBaseManager) GetActiveUsers() []*Player {
 	}
 	return activeUsers
 }
+
+func (db *DataBaseManager) FindUserByARWUser(arwUser *ARWUser) *Player {
+
+	for _, player := range db.GetActiveUsers() {
+		if player.arwUser != nil && player.arwUser == arwUser {
+			return player
+		}
+	}
+
+	return nil
+}
