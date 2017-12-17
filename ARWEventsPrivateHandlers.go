@@ -47,12 +47,11 @@ func P_Login(arwServer *ARWServer, conn net.Conn, request *Request) {
 		fmt.Println("User Create Error :", err)
 		return
 	}
-	if arwServer.events.Login.Handler == nil {
-		return
-	}
 
-	request.arwObject.PutInt("user_id", user.id)
-	arwServer.events.Login.Handler(request.arwObject)
+	if arwServer.events.Login.Handler != nil {
+		request.arwObject.PutInt("user_id", user.id)
+		arwServer.events.Login.Handler(request.arwObject)
+	}
 
 	var responseRequest *Request
 	responseRequest = new(Request)
