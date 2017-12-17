@@ -53,6 +53,7 @@ func (player *Player) Init(userData []byte) error {
 func (player *Player) AddTalk(talk *Talk) {
 	player.talks = append(player.talks, talk)
 
+	db.UpdateUser(player)
 }
 
 func (player *Player) GetPlayerData() string {
