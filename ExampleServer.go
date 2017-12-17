@@ -67,12 +67,6 @@ func GetUserDataHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 func FindConversationHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 	activeUsers := db.GetActiveUsers()
 
-	if len(activeUsers) == 0 {
-		//There is no player
-		// Send CannotFindConversation Request
-		return
-	}
-
 	var findedUser *Player
 	owner := db.FindUserByARWUser(user)
 	for _, player := range activeUsers {
@@ -93,9 +87,10 @@ func FindConversationHandler(server *ARWServer, user *ARWUser, arwObj ARWObject)
 	if findedUser == nil {
 		var aObj ARWObject
 		arwServer.SendExtensionRequest(CannotFindActiveUser, user, aObj)
+		fmt.Println("Can not find Active User")
 		return
 	}
-
+	fmt.Println("Conversation Find : ", owner.nickname, findedUser.nickname)
 	var ownerTalk *Talk
 	ownerTalk = new(Talk)
 	ownerTalk.CreateNewTalk(owner, findedUser)
