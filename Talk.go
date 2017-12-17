@@ -35,7 +35,9 @@ func (talk *Talk) Init(talkData map[string]interface{}) {
 }
 
 func (talk *Talk) CreateNewTalk(ownerPlayer *Player, playerTwo *Player) {
-	talk.id = int64(len(ownerPlayer.talks))
+	talk.id = int64(ownerPlayer.talkCounter)
+	ownerPlayer.talkCounter++
+
 	talk.ownerPlayer = ownerPlayer.id
 	talk.receiverPlayer = playerTwo.id
 	talk.receiverName = playerTwo.nickname
