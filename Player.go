@@ -13,9 +13,11 @@ type Player struct {
 	createdData string
 	talks       []*Talk
 	arwUser     *ARWUser
+	talkCounter int
 }
 
 func (player *Player) Init(userData []byte) error {
+	player.talkCounter = 0
 
 	var userMap map[string]interface{}
 
