@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 )
 
 type Player struct {
 	id          string
 	nickname    string
+	password    string
 	language    string
 	createdData string
 	talks       []*Talk
@@ -29,6 +31,7 @@ func (player *Player) Init(userData []byte) error {
 	player.nickname = fmt.Sprintf("%v", userMap["player_nickname"])
 	player.language = fmt.Sprintf("%v", userMap["language"])
 	player.createdData = fmt.Sprintf("%v", userMap["created_date"])
+	player.password = fmt.Sprintf("%v", userMap["player_password"])
 
 	if userMap["player_talks"] == nil {
 		return nil
@@ -67,4 +70,22 @@ func (player *Player) GetPlayerData() string {
 	playerData += "]}"
 
 	return playerData
+}
+
+func (player *Player) GetAllData() string {
+	userData := "{"
+	userData += "\"player_id\":\"" + player.id + "\","
+	userData += "\"player_nickname\":\"" + player.nickname + "\","
+	userData += "\"player_password\":\"" + player.password + "\","
+	userData += "\"language\":\"" + player.language + "\","
+	userData += "\"created_date\":\"" + time.Now().Format(time.Stamp) + "\","
+	userData += "\"player_talks\":["
+
+	for _, talk := range player.talks {
+		userData += talk.GetTalkData() + ","
+	}
+	userData = strings.TrimRight(userData, ",")
+	userData += "]}"
+
+	return userData
 }
