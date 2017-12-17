@@ -21,7 +21,10 @@ func main() {
 	db.dbPath = "ServerFiles/Database/"
 	db.InitAllDb()
 
-	arwServer.AddExtensionHandler(GetUserData, GetUserDataHandler)
+	arwServer.AddEventHandler(&(arwServer.events.Disconnection), DisconnectionEventHandler)
+
+	arwServer.AddExtensionHandler("Login", LoginHandler)
+	arwServer.AddExtensionHandler("Register", RegisterHandler)
 	arwServer.AddExtensionHandler(SendMessage, SendMessageHandler)
 	arwServer.AddExtensionHandler(FindConversation, FindConversationHandler)
 	arwServer.Initialize()
@@ -29,13 +32,22 @@ func main() {
 	arwServer.ProcessEvents()
 }
 
-func GetUserDataHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
-	player_id, _ := arwObj.GetString("player_id")
-	player_nickname, _ := arwObj.GetString("player_nickname")
-	language, _ := arwObj.GetString("language")
+func DisconnectionEventHandler(arwObj ARWObject) {
 
-	if !db.UserIsExist(player_id) {
-		userData, err := db.RegisterNewUser(player_id, player_nickname, language, user)
+}
+
+func LoginHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
+	player_id, _ := arwObj.GetString("player_id")
+	player_password, _ := arwObj.GetString("player_password")
+
+	if db.UserIsExist(player_id) {
+		userData, player, err := db.GetUserData(player_id)
+
+		if player.password != player_password {
+			var wrongObj ARWObject
+			arwServer.SendExtensionRequest("WrongPassword", user, wrongObj)
+			return
+		}
 
 		var obj ARWObject
 		obj.PutString("player_data", userData)
@@ -45,23 +57,38 @@ func GetUserDataHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 			obj.PutString("error", "")
 		}
 
-		x, _ := obj.GetString("player_data")
-		fmt.Println(x)
 		server.SendExtensionRequest(GetUserData, user, obj)
 	} else {
-		userData, player, err := db.GetUserData(player_id)
-		player.arwUser = user
-
 		var obj ARWObject
-		obj.PutString("player_data", userData)
-		if err != nil {
-			obj.PutString("error", err.Error())
-		} else {
-			obj.PutString("error", "")
-		}
-
-		server.SendExtensionRequest(GetUserData, user, obj)
+		arwServer.SendExtensionRequest("WrongPassword", user, obj)
 	}
+}
+
+func RegisterHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
+	player_id, _ := arwObj.GetString("player_id")
+	player_password, _ := arwObj.GetString("player_password")
+	player_language, _ := arwObj.GetString("language")
+	player_nickname, _ := arwObj.GetString("player_nickname")
+
+	if db.UserIsExist(player_id) {
+		var obj ARWObject
+		arwServer.SendExtensionRequest("RegisterError", user, obj)
+		return
+	}
+
+	userData, err := db.RegisterNewUser(player_id, player_nickname, player_language, player_password, user)
+
+	var obj ARWObject
+
+	if err != nil {
+		obj.PutString("error", err.Error())
+		arwServer.SendExtensionRequest("RegisterError", user, obj)
+	} else {
+		obj.PutString("player_data", userData)
+		obj.PutString("error", "")
+	}
+
+	server.SendExtensionRequest("Register", user, obj)
 }
 
 func FindConversationHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
