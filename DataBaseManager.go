@@ -109,3 +109,9 @@ func (db *DataBaseManager) FindUserByARWUser(arwUser *ARWUser) *Player {
 
 	return nil
 }
+
+func (db *DataBaseManager) UpdateUser(player *Player) {
+	userData := player.GetAllData()
+
+	ioutil.WriteFile(db.dbPath+player.id, []byte(userData), 0644)
+}
