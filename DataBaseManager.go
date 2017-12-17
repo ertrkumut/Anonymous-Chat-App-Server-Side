@@ -52,10 +52,11 @@ func (db *DataBaseManager) UserIsExist(userId string) bool {
 	return false
 }
 
-func (db *DataBaseManager) RegisterNewUser(userId string, nickname string, language string, arwUser *ARWUser) (string, error) {
+func (db *DataBaseManager) RegisterNewUser(userId string, nickname string, language string, password string, arwUser *ARWUser) (string, error) {
 	userData := "{"
 	userData += "\"player_id\":\"" + userId + "\","
 	userData += "\"player_nickname\":\"" + nickname + "\","
+	userData += "\"player_password\":\"" + password + "\","
 	userData += "\"language\":\"" + language + "\","
 	userData += "\"created_date\":\"" + time.Now().Format(time.Stamp) + "\","
 	userData += "\"player_talks\":[]}"
