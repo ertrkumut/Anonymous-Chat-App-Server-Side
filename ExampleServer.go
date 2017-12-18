@@ -49,6 +49,8 @@ func LoginHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 			return
 		}
 
+		fmt.Println("Login Success ", player_id)
+		player.arwUser = user
 		var obj ARWObject
 		obj.PutString("player_data", userData)
 		if err != nil {
@@ -77,7 +79,6 @@ func RegisterHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 	}
 
 	userData, err := db.RegisterNewUser(player_id, player_nickname, player_language, player_password, user)
-
 	var obj ARWObject
 
 	if err != nil {
@@ -88,7 +89,7 @@ func RegisterHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 		obj.PutString("error", "")
 	}
 
-	server.SendExtensionRequest("Register", user, obj)
+	server.SendExtensionRequest("GetUserData", user, obj)
 }
 
 func FindConversationHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
@@ -96,18 +97,22 @@ func FindConversationHandler(server *ARWServer, user *ARWUser, arwObj ARWObject)
 
 	var findedUser *Player
 	owner := db.FindUserByARWUser(user)
+	if owner == nil {
+		fmt.Println("user owner nil")
+		return
+	}
+
 	for _, player := range activeUsers {
-		if player.id == owner.id {
-			break
-		}
-		conversationIsExist := '0'
-		for _, talk := range player.talks {
-			if talk.receiverPlayer == owner.id {
-				conversationIsExist = '1'
+		if player.id != owner.id {
+			conversationIsExist := '0'
+			for _, talk := range owner.talks {
+				if talk.receiverPlayer == player.id {
+					conversationIsExist = '1'
+				}
 			}
-		}
-		if conversationIsExist == '0' {
-			findedUser = player
+			if conversationIsExist == '0' {
+				findedUser = player
+			}
 		}
 	}
 
@@ -142,5 +147,51 @@ func FindConversationHandler(server *ARWServer, user *ARWUser, arwObj ARWObject)
 }
 
 func SendMessageHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
+	sender_id, _ := arwObj.GetString("sender_id")
+	message_body, _ := arwObj.GetString("body")
+	send_date, _ := arwObj.GetString("send_date")
+	talkId, _ := arwObj.GetInt("talk_id")
+	fmt.Println("Send Msg : ", sender_id, message_body, talkId)
+	_, owner, err := db.GetUserData(sender_id)
+	if err == nil {
+		ownerTalk := owner.GetTalk(int64(talkId))
+		if ownerTalk != nil {
+			fmt.Println("0")
+			var ownerMsj *Message
+			ownerMsj = new(Message)
+			ownerMsj.NewMessage(sender_id, message_body, send_date)
 
+			_, receiverPlayer, err := db.GetUserData(ownerTalk.receiverPlayer)
+
+			if err == nil {
+				fmt.Println("1")
+				for _, receiverTalk := range receiverPlayer.talks {
+					if receiverTalk.receiverPlayer == owner.id {
+						fmt.Println("2")
+						var receiverMsg *Message
+						receiverMsg = new(Message)
+						receiverMsg.NewMessage(owner.id, message_body, send_date)
+
+						if receiverPlayer.arwUser != nil {
+							fmt.Println("3")
+							receiverTalk.AddMessage(receiverMsg)
+							ownerTalk.AddMessage(ownerMsj)
+
+							db.UpdateUser(owner)
+							db.UpdateUser(receiverPlayer)
+
+							var ownerARWObj ARWObject
+							ownerARWObj.PutString("message_data", ownerMsj.GetMessageData())
+							arwServer.SendExtensionRequest("SendMessage", user, ownerARWObj)
+
+							var receiverArwObj ARWObject
+							receiverArwObj.PutString("message_data", receiverMsg.GetMessageData())
+							arwServer.SendExtensionRequest("SendMessage", receiverPlayer.arwUser, receiverArwObj)
+							return
+						}
+					}
+				}
+			}
+		}
+	}
 }
