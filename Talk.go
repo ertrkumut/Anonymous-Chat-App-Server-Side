@@ -19,8 +19,8 @@ func (talk *Talk) Init(talkData map[string]interface{}) {
 	idString := fmt.Sprintf("%v", talkData["talk_id"])
 	talk.id, _ = strconv.ParseInt(idString, 10, 64)
 
-	talk.ownerPlayer = fmt.Sprintf("%v", talkData["receiver_id"])
-	talk.receiverPlayer = fmt.Sprintf("%v", talkData["sender_id"])
+	talk.ownerPlayer = fmt.Sprintf("%v", talkData["sender_id"])
+	talk.receiverPlayer = fmt.Sprintf("%v", talkData["receiver_id"])
 	talk.receiverName = fmt.Sprintf("%v", talkData["receiver_name"])
 
 	messages := talkData["talk_messages"].([]interface{})
@@ -41,8 +41,12 @@ func (talk *Talk) CreateNewTalk(ownerPlayer *Player, playerTwo *Player) {
 	talk.ownerPlayer = ownerPlayer.id
 	talk.receiverPlayer = playerTwo.id
 	talk.receiverName = playerTwo.nickname
+}
 
-	ownerPlayer.talks = append(ownerPlayer.talks, talk)
+func (talk *Talk) AddMessage(msj *Message) {
+	msj.id = int64(len(talk.messages))
+
+	talk.messages = append(talk.messages, msj)
 }
 
 func (talk *Talk) GetTalkData() string {
