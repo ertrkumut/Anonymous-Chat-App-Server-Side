@@ -26,6 +26,12 @@ func (message *Message) Init(messageData map[string]interface{}) {
 	message.talkId, _ = strconv.ParseInt(talkIdString, 10, 64)
 }
 
+func (message *Message) NewMessage(senderId string, body string, sendDate string) {
+	message.senderId = senderId
+	message.body = body
+	message.sendDate = sendDate
+}
+
 func (message *Message) GetMessageData() string {
 	messageData := "{"
 	messageData += "\"message_id\":" + fmt.Sprintf("%v", message.id) + ","
