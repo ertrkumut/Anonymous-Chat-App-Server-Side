@@ -51,11 +51,21 @@ func (player *Player) Init(userData []byte) error {
 }
 
 func (player *Player) AddTalk(talk *Talk) {
+	fmt.Println(len(player.talks), player.id)
 	player.talks = append(player.talks, talk)
-
+	fmt.Println(len(player.talks), player.id)
 	db.UpdateUser(player)
 }
 
+func (player *Player) GetTalk(talkId int64) *Talk {
+	for _, talk := range player.talks {
+		if talk.id == talkId {
+			return talk
+		}
+	}
+
+	return nil
+}
 func (player *Player) GetPlayerData() string {
 	playerData := "{"
 	playerData += "\"player_id\":\"" + player.id + "\","
