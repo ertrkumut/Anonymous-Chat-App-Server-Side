@@ -6,6 +6,8 @@
     "defaultRoomCapacity": 10,
     "maxRoomExtensionRequests": 10,
     "maxServerExtensionRequests": 10,
+    "maxRoomExtensionRequests": 10,
+    "maxServerExtensionRequests": 10,
     "defaultRoomName": "Default",
     "defaultRoomTag": "Default",
     "minimumLenghtOfroomName":1,

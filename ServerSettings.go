@@ -95,7 +95,7 @@ func (setttings *ServerSettings) InitializeServerSettings(path string) {
 	}
 	setttings.maxRoomExtensionRequests = maxRoomExtensionRequests
 
-	maxServerExtensionRequestsString := fmt.Sprintf("%v", allJsonData["maxRoomExtensionRequests"])
+	maxServerExtensionRequestsString := fmt.Sprintf("%v", allJsonData["maxServerExtensionRequests"])
 	maxServerExtensionRequests, parseErr := strconv.ParseInt(maxServerExtensionRequestsString, 10, 64)
 	if parseErr != nil {
 		panic(parseErr)
