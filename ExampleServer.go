@@ -25,6 +25,7 @@ func main() {
 
 	arwServer.AddExtensionHandler("Login", LoginHandler)
 	arwServer.AddExtensionHandler("Register", RegisterHandler)
+	arwServer.AddExtensionHandler("Relogin", ReloginHandler)
 	arwServer.AddExtensionHandler(SendMessage, SendMessageHandler)
 	arwServer.AddExtensionHandler(FindConversation, FindConversationHandler)
 	arwServer.Initialize()
@@ -64,6 +65,21 @@ func LoginHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 		var obj ARWObject
 		arwServer.SendExtensionRequest("WrongPassword", user, obj)
 	}
+}
+
+func ReloginHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
+	playerId, _ := arwObj.GetString("player_id")
+
+	playerData, _, err := db.GetUserData(playerId)
+	if err != nil {
+		fmt.Println("Relogin Err ", err)
+		return
+	}
+
+	var obj ARWObject
+	obj.PutString("player_data", playerData)
+	obj.PutString("error", "")
+	arwServer.SendExtensionRequest("GetUserData", user, obj)
 }
 
 func RegisterHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
@@ -156,7 +172,6 @@ func SendMessageHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 	if err == nil {
 		ownerTalk := owner.GetTalk(int64(talkId))
 		if ownerTalk != nil {
-			fmt.Println("0")
 			var ownerMsj *Message
 			ownerMsj = new(Message)
 			ownerMsj.NewMessage(sender_id, message_body, send_date)
@@ -164,16 +179,13 @@ func SendMessageHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 			_, receiverPlayer, err := db.GetUserData(ownerTalk.receiverPlayer)
 
 			if err == nil {
-				fmt.Println("1")
 				for _, receiverTalk := range receiverPlayer.talks {
 					if receiverTalk.receiverPlayer == owner.id {
-						fmt.Println("2")
 						var receiverMsg *Message
 						receiverMsg = new(Message)
 						receiverMsg.NewMessage(owner.id, message_body, send_date)
 
 						if receiverPlayer.arwUser != nil {
-							fmt.Println("3")
 							receiverTalk.AddMessage(receiverMsg)
 							ownerTalk.AddMessage(ownerMsj)
 
