@@ -44,6 +44,10 @@ func LoginHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 	if db.UserIsExist(player_id) {
 		userData, player, err := db.GetUserData(player_id)
 
+		if err != nil || player == nil {
+			return
+		}
+
 		if player.password != player_password {
 			var wrongObj ARWObject
 			arwServer.SendExtensionRequest("WrongPassword", user, wrongObj)
@@ -72,7 +76,7 @@ func ReloginHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 
 	playerData, _, err := db.GetUserData(playerId)
 	if err != nil {
-		fmt.Println("Relogin Err ", err)
+		fmt.Println("Relogin Err ", playerId, err)
 		return
 	}
 
@@ -167,7 +171,7 @@ func SendMessageHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 	message_body, _ := arwObj.GetString("body")
 	send_date, _ := arwObj.GetString("send_date")
 	talkId, _ := arwObj.GetInt("talk_id")
-	fmt.Println("Send Msg : ", sender_id, message_body, talkId)
+
 	_, owner, err := db.GetUserData(sender_id)
 	if err == nil {
 		ownerTalk := owner.GetTalk(int64(talkId))
@@ -186,6 +190,7 @@ func SendMessageHandler(server *ARWServer, user *ARWUser, arwObj ARWObject) {
 						receiverMsg.NewMessage(owner.id, message_body, send_date)
 
 						if receiverPlayer.arwUser != nil {
+							fmt.Println("Send Msg : ", sender_id, message_body, talkId)
 							receiverTalk.AddMessage(receiverMsg)
 							ownerTalk.AddMessage(ownerMsj)
 
