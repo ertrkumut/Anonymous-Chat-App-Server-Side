@@ -46,6 +46,7 @@ func (player *Player) Init(userData []byte) error {
 		player.talks = append(player.talks, newTalk)
 	}
 
+	player.talkCounter = len(player.talks)
 	fmt.Println(player.id, player.nickname, player.language, len(player.talks))
 	return nil
 }
@@ -66,6 +67,7 @@ func (player *Player) GetTalk(talkId int64) *Talk {
 
 	return nil
 }
+
 func (player *Player) GetPlayerData() string {
 	playerData := "{"
 	playerData += "\"player_id\":\"" + player.id + "\","
